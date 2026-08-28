@@ -1,0 +1,8 @@
+data/*.parquet
+models/
+__pycache__/
+*.pyc
+.DS_Store
+reports/*.log
+reports/*.npy
+.gradio/
