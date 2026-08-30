@@ -1,0 +1,92 @@
+{
+  "cleaned": {
+    "metrics": {
+      "accuracy": 0.9734,
+      "precision_real": 0.9782,
+      "recall_real": 0.9719,
+      "f1": 0.975,
+      "roc_auc": 0.9951
+    },
+    "top_features": {
+      "pushes_real": [
+        "said",
+        "said on",
+        "on wednesday",
+        "president donald",
+        "on",
+        "on tuesday",
+        "on thursday",
+        "said in",
+        "on friday",
+        "on monday",
+        "wednesday",
+        "said the",
+        "minister",
+        "tuesday",
+        "its"
+      ],
+      "pushes_fake": [
+        "via",
+        "video",
+        "read more",
+        "image",
+        "featured image",
+        "featured",
+        "read",
+        "image via",
+        "president trump",
+        "this",
+        "watch",
+        "us",
+        "gop",
+        "just",
+        "the us"
+      ]
+    }
+  },
+  "raw_with_leakage": {
+    "metrics": {
+      "accuracy": 0.9763,
+      "precision_real": 0.9834,
+      "recall_real": 0.9721,
+      "f1": 0.9777,
+      "roc_auc": 0.9961
+    },
+    "top_features": {
+      "pushes_real": [
+        "reuters",
+        "said",
+        "washington reuters",
+        "said on",
+        "reuters the",
+        "on wednesday",
+        "washington",
+        "on tuesday",
+        "president donald",
+        "said in",
+        "on",
+        "on thursday",
+        "on friday",
+        "on monday",
+        "reuters president"
+      ],
+      "pushes_fake": [
+        "via",
+        "video",
+        "image",
+        "read more",
+        "featured image",
+        "featured",
+        "image via",
+        "read",
+        "watch",
+        "com",
+        "this",
+        "president trump",
+        "just",
+        "getty",
+        "gop"
+      ]
+    }
+  }
+}
