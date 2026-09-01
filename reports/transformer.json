@@ -1,0 +1,40 @@
+{
+  "model": "distilbert-base-uncased",
+  "max_len": 256,
+  "batch": 16,
+  "epochs": 1,
+  "lr": 3e-05,
+  "train_samples": 24349,
+  "train_minutes": 38.7,
+  "history": [
+    {
+      "epoch": 1,
+      "validation": {
+        "accuracy": 0.9829,
+        "precision_real": 0.9834,
+        "recall_real": 0.985,
+        "f1": 0.9842,
+        "roc_auc": 0.9993,
+        "confusion": {
+          "tn_fake_as_fake": 3648,
+          "fp_fake_as_real": 73,
+          "fn_real_as_fake": 66,
+          "tp_real_as_real": 4328
+        }
+      }
+    }
+  ],
+  "test": {
+    "accuracy": 0.9852,
+    "precision_real": 0.9875,
+    "recall_real": 0.9848,
+    "f1": 0.9861,
+    "roc_auc": 0.9994,
+    "confusion": {
+      "tn_fake_as_fake": 3728,
+      "fp_fake_as_real": 54,
+      "fn_real_as_fake": 66,
+      "tp_real_as_real": 4269
+    }
+  }
+}
