@@ -1,0 +1,78 @@
+{
+  "correct": 6,
+  "total": 8,
+  "cases": [
+    {
+      "text": "The city council approved a $2.4 million budget for road repairs on Tuesday, council member Maria Lopez said, adding tha...",
+      "human_label": "real",
+      "model_label": "real",
+      "verdict": "real",
+      "p_real": 0.9996,
+      "correct": true,
+      "why_included": "Local, non-political wire style. Model has seen almost no local news."
+    },
+    {
+      "text": "Apple on Tuesday reported quarterly revenue of $94.9 billion, up 6 percent from a year earlier, driven by iPhone sales, ...",
+      "human_label": "real",
+      "model_label": "real",
+      "verdict": "real",
+      "p_real": 0.9997,
+      "correct": true,
+      "why_included": "Business news. Dataset is almost entirely US politics."
+    },
+    {
+      "text": "A new peer-reviewed study published in The Lancet found that regular walking is associated with a 20 percent lower risk ...",
+      "human_label": "real",
+      "model_label": "real",
+      "verdict": "real",
+      "p_real": 0.9992,
+      "correct": true,
+      "why_included": "Health/science, real in style."
+    },
+    {
+      "text": "Researchers at Stanford University reported on Monday that a common food preservative reverses ageing in humans, the uni...",
+      "human_label": "fake",
+      "model_label": "real",
+      "verdict": "real",
+      "p_real": 0.9996,
+      "correct": false,
+      "why_included": "FALSE claim written in perfect wire-service style. The intended failure case: the model checks style, not facts."
+    },
+    {
+      "text": "SHOCKING: Doctors HATE this one trick that cures diabetes overnight (VIDEO). Big Pharma is trying to hide this! Share be...",
+      "human_label": "fake",
+      "model_label": "fake",
+      "verdict": "fake",
+      "p_real": 0.0004,
+      "correct": true,
+      "why_included": "Classic clickbait. Should be easy."
+    },
+    {
+      "text": "Scientists confirm the moon landing was staged in a Nevada desert, according to documents leaked to an independent journ...",
+      "human_label": "fake",
+      "model_label": "real",
+      "verdict": "real",
+      "p_real": 0.9995,
+      "correct": false,
+      "why_included": "Conspiracy content written in neutral tone; no clickbait markers."
+    },
+    {
+      "text": "The Federal Reserve held interest rates steady on Wednesday, as expected, and signaled it was in no hurry to cut, citing...",
+      "human_label": "real",
+      "model_label": "real",
+      "verdict": "real",
+      "p_real": 0.9996,
+      "correct": true,
+      "why_included": "Economic news, wire style."
+    },
+    {
+      "text": "Trump Just Did Something So Stupid Even Fox News Couldn't Defend Him (VIDEO)",
+      "human_label": "fake",
+      "model_label": "fake",
+      "verdict": "fake",
+      "p_real": 0.0117,
+      "correct": true,
+      "why_included": "Headline only, partisan blog style."
+    }
+  ]
+}

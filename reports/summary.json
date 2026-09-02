@@ -1,0 +1,62 @@
+{
+  "test_size": 8117,
+  "baseline_clean": {
+    "accuracy": 0.9734,
+    "precision_real": 0.9782,
+    "recall_real": 0.9719,
+    "f1": 0.975,
+    "roc_auc": 0.9951
+  },
+  "baseline_raw_leaky": {
+    "accuracy": 0.9763,
+    "precision_real": 0.9834,
+    "recall_real": 0.9721,
+    "f1": 0.9777,
+    "roc_auc": 0.9961
+  },
+  "leaky_top_real_features": [
+    "reuters",
+    "said",
+    "washington reuters",
+    "said on",
+    "reuters the"
+  ],
+  "clean_top_real_features": [
+    "said",
+    "said on",
+    "on wednesday",
+    "president donald",
+    "on"
+  ],
+  "clean_top_fake_features": [
+    "via",
+    "video",
+    "read more",
+    "image",
+    "featured image"
+  ],
+  "transformer": {
+    "accuracy": 0.9852,
+    "precision_real": 0.9875,
+    "recall_real": 0.9848,
+    "f1": 0.9861,
+    "roc_auc": 0.9994,
+    "confusion": {
+      "tn_fake_as_fake": 3728,
+      "fp_fake_as_real": 54,
+      "fn_real_as_fake": 66,
+      "tp_real_as_real": 4269
+    }
+  },
+  "transformer_train_minutes": 38.7,
+  "transformer_errors": 120,
+  "abstain_policy": {
+    "threshold": 0.75,
+    "coverage": 0.9745,
+    "accuracy_on_covered": 0.9949
+  },
+  "stress_test": {
+    "correct": 6,
+    "total": 8
+  }
+}

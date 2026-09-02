@@ -1,0 +1,78 @@
+{
+  "n_errors": 120,
+  "n_test": 8117,
+  "most_confident_mistakes": [
+    {
+      "true_label": "fake",
+      "p_real": 0.9993,
+      "title": "ISRAEL WILL NAME New Train Station Near Western Wall After President Donald Trump",
+      "excerpt": "Israel s transportation minister is pushing ahead with a plan to extend Jerusalem s soon-to-open high-speed rail line to the Western Wall, where he wants to name a future station after President Donald Trump. The Western Wall is the holiest place for the Jewish people, and I decided to name the trai"
+    },
+    {
+      "true_label": "real",
+      "p_real": 0.003,
+      "title": "Awaiting Trump's coal comeback, miners reject retraining",
+      "excerpt": "When Mike Sylvester entered a career training center earlier this year in southwestern Pennsylvania, he found more than one hundred federally funded courses covering everything from computer programming to nursing. He settled instead on something familiar: a coal mining course. I think there is a co"
+    },
+    {
+      "true_label": "fake",
+      "p_real": 0.9957,
+      "title": "BELGIAN MAYOR IS THREATENED BY ISLAMISTS: Convert To Islam Or Die",
+      "excerpt": "Coming to a town near you A sign was hung in a public square in Antwerp, Belgium threatening Mayor Bart De Wever with death if he did not convert to Islam, Belgian media reported Sunday.The message was written in French, one of the three official languages of Belgium, the others being Dutch and Germ"
+    },
+    {
+      "true_label": "real",
+      "p_real": 0.005,
+      "title": "The pope is writing a document on fake news - and that's the truth",
+      "excerpt": "If you ever wondered how to say fake news in Latin, it s nuntii fallaces - and Pope Francis is writing a document on just that. Francis announced it himself in a tweet to his nearly 40 million followers on Friday, saying the theme of his message for the Roman Catholic Church s next World Day of Soci"
+    },
+    {
+      "true_label": "real",
+      "p_real": 0.0095,
+      "title": "evil hillary supporters yell fck trumpburn truck of daddy fishing with yr son over of trump bumperstickers video percentfedupcom",
+      "excerpt": "email these people are sick and evil they will stop at nothing to get their way laws mean nothing to them because they mean nothing to their president and his regime a california man says a stranger hurled expletives and set his truck on fire thursday after seeing a prodonald trump sticker on the bu"
+    },
+    {
+      "true_label": "real",
+      "p_real": 0.0114,
+      "title": "pin drop speech by father of daughter kidnapped and killed by isis i have voted for donald j trump percentfedupcom",
+      "excerpt": "email kayla mueller was a prisoner and tortured by isis while no chance of releasea horrific story her father gave a pin drop speech that was so heartfelt you want to give him a hug carl mueller believes donald trump will be a great presidentepic speech k shares"
+    },
+    {
+      "true_label": "real",
+      "p_real": 0.0239,
+      "title": "Hurricane Irma threatens power losses for millions in Florida",
+      "excerpt": "Hurricane Irma poses a bigger menace to power supplies in Florida than Hurricane Harvey did in Texas because Irma is packing near 200 mile-per-hour winds (320 km/h) that could down power lines, close nuclear plants and threats to leave millions of homes and businesses in the dark for weeks. Irma s w"
+    },
+    {
+      "true_label": "fake",
+      "p_real": 0.9628,
+      "title": "principal institutes ban after students wear confederate flag to school",
+      "excerpt": "published on oct by ukraine war awareness october a village in the pervomaisk district in separatistheld lugansk was bombed with collateral damage on private property as well as gas and electricity residents report the shooting coming from governmentheld zolote a region captured by uaf in march and "
+    },
+    {
+      "true_label": "real",
+      "p_real": 0.0394,
+      "title": "Factbox: Saudi king lifts ban on women driving - but what about other rights?",
+      "excerpt": "Saudi King Salman has ordered that women be allowed to drive, ending a restriction seen by rights activists as an emblem of the Islamic kingdom s repression of women. Here is a look at some of the biggest outstanding women s rights issues in Saudi Arabia: Women must have a male guardian s approval f"
+    },
+    {
+      "true_label": "fake",
+      "p_real": 0.9596,
+      "title": "Former Israeli Prime Minister BLASTS Israeli Government, Says Israel Has Become A Fascist State",
+      "excerpt": "It appears that the curtain that hides the true nature of Israel is finally beginning to be pulled back. On Friday, former prime minister and defense minister Ehud Barak told reporters that Israel has been infected by the seeds of fascism. That may be one of the biggest understatements of the year, "
+    },
+    {
+      "true_label": "fake",
+      "p_real": 0.9525,
+      "title": "FRANCE: REFUGEE PAYS ANOTHER REFUGEE To Rape Worker As Pay Back For THIS",
+      "excerpt": "No woman should be working in these public housing units where they re surrouded by men who are part of a culture where rape is a right.The 16-year-old adolescent, questioned and incarcerated on Saturday following the rape of a hotel employee in Orl an the previous week, says that he acted at a frie"
+    },
+    {
+      "true_label": "real",
+      "p_real": 0.0489,
+      "title": "shopify erased our store from the internet while i was fulfilling orders",
+      "excerpt": "Fake"
+    }
+  ]
+}
