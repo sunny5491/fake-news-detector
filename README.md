@@ -2,7 +2,9 @@
 
 Fine-tuned DistilBERT that flags low-credibility news articles, explains its own decision with word-level highlights, and abstains when it isn't confident. Built with a focus on *not* over-claiming what the model can do.
 
-**Live demo:** run `python3 app/app.py` and open http://127.0.0.1:7860
+**Live demo (runs in your browser, nothing uploaded):** https://sunny5491.github.io/fake-news-detector/
+
+Local Gradio app: `python3 app/app.py` then open http://127.0.0.1:7860
 
 ## Results (held-out test set, 8,117 articles)
 
@@ -22,8 +24,9 @@ train_transformer.py  fine-tune distilbert-base-uncased (MPS / CPU)
 eval_report.py        ROC, calibration, confusion matrix, error analysis, stress test
 app/explain.py        inference + gradient x input word attributions + abstain
 app/app.py            Gradio UI
+docs/                 static browser demo (GitHub Pages): transformers.js + int8 ONNX + JS port of the baseline
 tests/                smoke tests for the detector
-deploy/HF_SPACES.md   how to put it on Hugging Face Spaces for free
+deploy/HF_SPACES.md   how to put the Gradio app on Hugging Face Spaces (needs a PRO plan now)
 run.sh                reproduce everything end to end
 ```
 
@@ -51,4 +54,13 @@ python3 -m pytest tests -q
 python3 app/app.py
 ```
 
-Or `./run.sh` for all of the above. Trained weights are not committed (255 MB); see `deploy/HF_SPACES.md` for pushing them to the Hub.
+Or `./run.sh` for all of the above. Trained weights are not committed (255 MB); they live on the Hub at [Deven5491/distilbert-fakenews](https://huggingface.co/Deven5491/distilbert-fakenews), and `app/explain.py` falls back to that automatically.
+
+## How the browser demo works
+
+Hugging Face stopped offering free Gradio Spaces, so instead of a server the demo runs the model client-side:
+
+- DistilBERT exported to ONNX and dynamically quantised to int8 (268 MB -> 67 MB). On a 600-article test sample this costs 0.3 points of accuracy (98.3% -> 98.0%, 2 flipped verdicts).
+- Loaded with [transformers.js](https://github.com/huggingface/transformers.js) from the Hub, cached by the browser after the first visit.
+- The TF-IDF + logistic-regression baseline is ported to ~60 lines of JavaScript (`docs/tfidf.js`) and matches scikit-learn to 1e-5. Because it is linear, word-level attributions are exact.
+- DistilBERT explanations use sentence-level occlusion: drop each sentence, re-run, report the change in P(real).

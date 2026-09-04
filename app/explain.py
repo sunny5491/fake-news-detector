@@ -6,6 +6,7 @@ word-pieces back into whole words. Positive score = pushed toward REAL, negative
 = pushed toward FAKE. This is a cheap, honest approximation (one backward
 pass); it shows what the model attended to, not whether a claim is true.
 """
+import os
 from pathlib import Path
 
 import joblib
@@ -14,8 +15,25 @@ import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 ROOT = Path(__file__).resolve().parent.parent
-TRANSFORMER_DIR = ROOT / "models" / "distilbert-fakenews"
-BASELINE_PATH = ROOT / "models" / "tfidf_logreg.joblib"
+# Local paths are used when they exist (after running the training scripts).
+# Otherwise fall back to the Hugging Face Hub, which is how the Spaces demo runs.
+HUB_REPO = os.environ.get("FAKENEWS_HUB_REPO", "Deven5491/distilbert-fakenews")
+_LOCAL_TRANSFORMER = ROOT / "models" / "distilbert-fakenews"
+_LOCAL_BASELINE = ROOT / "models" / "tfidf_logreg.joblib"
+TRANSFORMER_DIR = _LOCAL_TRANSFORMER if _LOCAL_TRANSFORMER.exists() else HUB_REPO
+
+
+def _baseline_path():
+    if _LOCAL_BASELINE.exists():
+        return _LOCAL_BASELINE
+    from huggingface_hub import hf_hub_download
+    try:
+        return Path(hf_hub_download(HUB_REPO, "tfidf_logreg.joblib"))
+    except Exception:
+        return None
+
+
+BASELINE_PATH = _baseline_path()
 MAX_LEN = 256
 
 # Responsible-AI guardrail: below this confidence we refuse to give a verdict.
@@ -28,7 +46,7 @@ class Detector:
     def __init__(self):
         self.tok = AutoTokenizer.from_pretrained(TRANSFORMER_DIR)
         self.model = AutoModelForSequenceClassification.from_pretrained(TRANSFORMER_DIR).to(device).eval()
-        self.baseline = joblib.load(BASELINE_PATH) if BASELINE_PATH.exists() else None
+        self.baseline = joblib.load(BASELINE_PATH) if BASELINE_PATH is not None else None
 
     def predict(self, text: str) -> dict:
         text = (text or "").strip()
