@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fake News Detector</title>
+<link rel="icon" href="data:,">
+<meta name="description" content="Fine-tuned DistilBERT fake-news detector running entirely in your browser. Explains its decision and abstains when unsure.">
+<style>
+  :root {
+    --bg: #f6f5f1; --card: #ffffff; --ink: #1c1b18; --muted: #6b675e; --line: #e4e1d8;
+    --accent: #2f5d8a; --real: #1f7a4d; --fake: #b3332b; --warn: #a2681a;
+    --real-bg: rgba(31,122,77,.14); --fake-bg: rgba(179,51,43,.14);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 -apple-system, "Segoe UI", Inter, Roboto, sans-serif; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 28px 20px 60px; }
+  header h1 { margin: 0 0 4px; font-size: 30px; letter-spacing: -.01em; }
+  header p { margin: 0; color: var(--muted); }
+  .grid { display: grid; grid-template-columns: 3fr 2fr; gap: 18px; margin-top: 22px; }
+  @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  textarea { width: 100%; min-height: 220px; resize: vertical; border: 1px solid var(--line); border-radius: 8px; padding: 12px; font: inherit; font-size: 15px; background: #fcfcfa; }
+  textarea:focus { outline: 2px solid var(--accent); border-color: transparent; }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+  button { font: inherit; border: 0; border-radius: 8px; padding: 10px 18px; cursor: pointer; }
+  .primary { background: var(--accent); color: #fff; font-weight: 600; }
+  .primary:disabled { opacity: .5; cursor: default; }
+  .ghost { background: transparent; color: var(--accent); border: 1px solid var(--line); padding: 7px 12px; font-size: 14px; }
+  .ghost:hover { background: #f0f3f7; }
+  .status { font-size: 14px; color: var(--muted); }
+  .bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; margin-top: 8px; }
+  .bar > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 0 0 10px; }
+  .verdict { font-size: 20px; font-weight: 700; margin: 0 0 12px; line-height: 1.3; }
+  .verdict.real { color: var(--real); } .verdict.fake { color: var(--fake); } .verdict.uncertain { color: var(--warn); }
+  .prob { margin: 10px 0; }
+  .prob .lbl { display: flex; justify-content: space-between; font-size: 14px; }
+  .prob .track { height: 10px; background: var(--line); border-radius: 5px; overflow: hidden; margin-top: 4px; display: flex; }
+  .prob .track .r { background: var(--real); height: 100%; } .prob .track .f { background: var(--fake); height: 100%; }
+  .notes { font-size: 14px; color: var(--muted); margin-top: 12px; }
+  .notes p { margin: 6px 0; }
+  .hl { line-height: 1.9; font-size: 15px; white-space: pre-wrap; word-break: break-word; }
+  .hl span { border-radius: 3px; padding: 1px 0; }
+  .legend { font-size: 13px; color: var(--muted); margin-top: 8px; }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 4px; }
+  .sent { margin: 0; padding: 0; list-style: none; font-size: 14px; }
+  .sent li { display: flex; gap: 10px; padding: 6px 0; border-top: 1px solid var(--line); }
+  .sent li:first-child { border-top: 0; }
+  .sent b { flex: 0 0 64px; text-align: right; font-variant-numeric: tabular-nums; }
+  .sent b.r { color: var(--real); } .sent b.f { color: var(--fake); }
+  .disc { margin-top: 18px; font-size: 14px; color: var(--muted); }
+  .disc strong { color: var(--ink); }
+  footer { margin-top: 30px; font-size: 13px; color: var(--muted); }
+  a { color: var(--accent); }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>📰 Fake News Detector</h1>
+    <p>Fine-tuned DistilBERT · runs 100% in your browser · explains its decision · abstains when unsure</p>
+  </header>
+
+  <div class="grid">
+    <div>
+      <div class="card">
+        <textarea id="inp" placeholder="Paste a news headline + article text here..."></textarea>
+        <div class="row">
+          <button id="go" class="primary" disabled>Analyse</button>
+          <span id="status" class="status">Loading model…</span>
+        </div>
+        <div class="bar"><i id="prog"></i></div>
+        <div class="row" style="margin-top:14px">
+          <span class="status">Try an example:</span>
+          <button class="ghost" data-ex="0">Wire report</button>
+          <button class="ghost" data-ex="1">Clickbait</button>
+          <button class="ghost" data-ex="2">Science news</button>
+          <button class="ghost" data-ex="3">False claim, neutral tone</button>
+        </div>
+      </div>
+
+      <div id="explain" class="card hidden" style="margin-top:18px">
+        <h2>Why? Word-level attribution</h2>
+        <div id="hl" class="hl"></div>
+        <div class="legend"><i style="background:var(--real-bg)"></i>pushed toward <em>real</em> &nbsp; <i style="background:var(--fake-bg)"></i>pushed toward <em>fake</em> &nbsp; · intensity = strength. Exact per-word contributions from the linear TF-IDF baseline.</div>
+      </div>
+
+      <div id="sentences" class="card hidden" style="margin-top:18px">
+        <h2>Which sentences moved DistilBERT most</h2>
+        <ul id="sentlist" class="sent"></ul>
+        <div class="legend">Each sentence was removed in turn and the model re-run. The number is how much <em>P(real)</em> changed when that sentence was present.</div>
+      </div>
+    </div>
+
+    <div>
+      <div id="result" class="card">
+        <h2>Result</h2>
+        <p id="verdict" class="verdict" style="color:var(--muted);font-weight:400;font-size:15px">Paste an article and press Analyse.</p>
+        <div id="probs" class="hidden">
+          <div class="prob">
+            <div class="lbl"><span>DistilBERT (fine-tuned)</span><span id="p1"></span></div>
+            <div class="track"><div class="r" id="b1r"></div><div class="f" id="b1f"></div></div>
+          </div>
+          <div class="prob">
+            <div class="lbl"><span>TF-IDF baseline (cross-check)</span><span id="p2"></span></div>
+            <div class="track"><div class="r" id="b2r"></div><div class="f" id="b2f"></div></div>
+          </div>
+        </div>
+        <div id="notes" class="notes"></div>
+      </div>
+
+      <div class="card disc">
+        <strong>What this model actually does.</strong> It was trained on ~24k US political news articles (2016-2017) labelled by <em>source reputation</em>, not by fact-checking individual claims. It learns the <em>writing style</em> of wire-service journalism versus partisan blogs: attributed quotes and datelines push toward <em>real</em>; "VIDEO", "featured image", ALL-CAPS outrage push toward <em>fake</em>. It does <strong>not</strong> verify facts, and a well-written false story can fool it (try the 4th example). Below 75% confidence it abstains rather than guess. Treat it as a triage aid, never a judge.
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Test accuracy 98.5% · ROC-AUC 0.999 on 8,117 held-out articles (int8 browser build: 98.0% on a 600-article sample). Nothing you paste leaves your device.
+    Code, training and evaluation: <a href="https://github.com/sunny5491/fake-news-detector">github.com/sunny5491/fake-news-detector</a> · Weights: <a href="https://huggingface.co/Deven5491/distilbert-fakenews">Deven5491/distilbert-fakenews</a>
+  </footer>
+</div>
+
+<script type="module">
+import { AutoTokenizer, AutoModelForSequenceClassification, env } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.2.0";
+import { TfidfLogReg } from "./tfidf.js";
+
+const REPO = "Deven5491/distilbert-fakenews";
+const MAX_LEN = 256;
+const ABSTAIN_BELOW = 0.75;
+env.allowLocalModels = false;
+
+const EXAMPLES = [
+  "The Senate Judiciary Committee voted 12-10 on Thursday to advance the nomination, sending it to the full Senate, where a vote is expected next week, committee chairman Chuck Grassley said in a statement.",
+  "BREAKING: You Won't BELIEVE What This Senator Was Just Caught Doing (VIDEO). Share this before they take it down! Featured image via screenshot. Read more at the link below.",
+  "Scientists at the university published a study in Nature on Wednesday reporting that the new compound reduced tumor growth in mice by 40 percent, though they cautioned that human trials are still years away.",
+  "Researchers at Stanford University reported on Monday that a common food preservative reverses ageing in humans, the university said in a statement. The finding, published in a peer-reviewed journal, was described by the lead author as conclusive.",
+];
+
+const $ = (id) => document.getElementById(id);
+const inp = $("inp"), go = $("go"), status = $("status"), prog = $("prog");
+
+document.querySelectorAll("[data-ex]").forEach((b) => b.addEventListener("click", () => { inp.value = EXAMPLES[+b.dataset.ex]; if (ready) analyse(); }));
+
+let tok, model, baseline, ready = false;
+
+async function load() {
+  try {
+    const seen = new Map();
+    const progress = (p) => {
+      if (p.status === "progress" && p.file) {
+        seen.set(p.file, [p.loaded || 0, p.total || 0]);
+        let l = 0, t = 0; for (const [a, b] of seen.values()) { l += a; t += b; }
+        if (t) { prog.style.width = (100 * l / t).toFixed(1) + "%"; status.textContent = `Downloading model… ${(l / 1e6).toFixed(0)} / ${(t / 1e6).toFixed(0)} MB (cached after first visit)`; }
+      }
+    };
+    const [t, m, bj] = await Promise.all([
+      AutoTokenizer.from_pretrained(REPO),
+      AutoModelForSequenceClassification.from_pretrained(REPO, { dtype: "q8", progress_callback: progress }),
+      fetch("./tfidf_logreg.json").then((r) => r.json()),
+    ]);
+    tok = t; model = m; baseline = new TfidfLogReg(bj);
+    prog.style.width = "100%";
+    status.textContent = "Model ready. Runs locally, nothing is uploaded.";
+    ready = true; go.disabled = false;
+    // Shareable links: ?ex=2 loads an example, ?text=... loads custom text
+    const q = new URLSearchParams(location.search);
+    if (q.has("text")) { inp.value = q.get("text"); analyse(); }
+    else if (q.has("ex") && EXAMPLES[+q.get("ex")]) { inp.value = EXAMPLES[+q.get("ex")]; analyse(); }
+  } catch (e) {
+    console.error(e);
+    status.textContent = "Could not load the model: " + (e.message || e);
+    prog.style.background = "var(--fake)";
+  }
+}
+
+async function pReal(text) {
+  const enc = tok(text, { truncation: true, max_length: MAX_LEN });
+  const { logits } = await model(enc);
+  const [a, b] = Array.from(logits.data);
+  const m = Math.max(a, b);
+  return Math.exp(b - m) / (Math.exp(a - m) + Math.exp(b - m));
+}
+
+function splitSentences(text) {
+  return text.replace(/\s+/g, " ").match(/[^.!?]+[.!?]+["')\]]*\s*|[^.!?]+$/g)?.map((s) => s.trim()).filter((s) => s.split(" ").length >= 4) || [];
+}
+
+function renderHighlights(text, words) {
+  // words: [[token, score]] in order of appearance; re-locate tokens in the original text
+  const re = /[\p{L}\p{N}_]{2,}/gu;
+  const hl = $("hl"); hl.textContent = "";
+  let pos = 0, k = 0;
+  for (const m of text.matchAll(re)) {
+    if (k >= words.length) break;
+    if (m.index > pos) hl.appendChild(document.createTextNode(text.slice(pos, m.index)));
+    const s = words[k][1]; k++;
+    const span = document.createElement("span");
+    span.textContent = m[0];
+    const a = Math.min(1, Math.abs(s));
+    if (a > 0.04) span.style.background = s > 0 ? `rgba(31,122,77,${(0.1 + 0.55 * a).toFixed(2)})` : `rgba(179,51,43,${(0.1 + 0.55 * a).toFixed(2)})`;
+    hl.appendChild(span);
+    pos = m.index + m[0].length;
+  }
+  hl.appendChild(document.createTextNode(text.slice(pos)));
+}
+
+async function analyse() {
+  const text = inp.value.trim();
+  const v = $("verdict"), notes = $("notes");
+  $("sentences").classList.add("hidden");
+  if (text.split(/\s+/).length < 5) { v.textContent = "Please paste at least a full sentence (5+ words)."; v.className = "verdict"; v.style = ""; $("probs").classList.add("hidden"); $("explain").classList.add("hidden"); notes.textContent = ""; return; }
+  go.disabled = true; status.textContent = "Analysing…";
+  const t0 = performance.now();
+  const p = await pReal(text);
+  const ms = performance.now() - t0;
+  const b = baseline.predict(text);
+  const truncated = tok(text).input_ids.dims[1] > MAX_LEN;
+
+  const label = p >= 0.5 ? "real" : "fake";
+  const conf = Math.max(p, 1 - p);
+  const verdict = conf >= ABSTAIN_BELOW ? label : "uncertain";
+  v.style = "";
+  v.className = "verdict " + verdict;
+  v.textContent = verdict === "uncertain" ? `⚠️ Uncertain (${(conf * 100).toFixed(1)}% toward ${label}) — not confident enough to call it.`
+    : verdict === "real" ? `✅ Looks like legitimate news reporting — ${(conf * 100).toFixed(1)}% confidence`
+    : `🚩 Looks like fake / low-credibility content — ${(conf * 100).toFixed(1)}% confidence`;
+
+  $("probs").classList.remove("hidden");
+  $("p1").textContent = `${(p * 100).toFixed(1)}% real`; $("b1r").style.width = (p * 100) + "%"; $("b1f").style.width = ((1 - p) * 100) + "%";
+  $("p2").textContent = `${(b.pReal * 100).toFixed(0)}% real`; $("b2r").style.width = (b.pReal * 100) + "%"; $("b2f").style.width = ((1 - b.pReal) * 100) + "%";
+
+  const agree = (b.pReal >= 0.5) === (p >= 0.5);
+  const lines = [`Cross-check: the TF-IDF baseline says ${(b.pReal * 100).toFixed(0)}% real, so the two models <b>${agree ? "agree" : "disagree"}</b>.${agree ? "" : " Disagreement is a signal to be careful."}`];
+  if (truncated) lines.push("Only the first ~200 words were analysed (model input limit).");
+  lines.push(`Inference took ${ms.toFixed(0)} ms in your browser.`);
+  notes.innerHTML = lines.map((l) => `<p>${l}</p>`).join("");
+
+  renderHighlights(text, b.words);
+  $("explain").classList.remove("hidden");
+  go.disabled = false; status.textContent = "Model ready.";
+
+  // Sentence-level occlusion on DistilBERT (cheap: one pass per sentence, capped)
+  const sents = splitSentences(text).slice(0, 8);
+  if (sents.length >= 2) {
+    const list = $("sentlist"); list.innerHTML = "<li><span class='status'>Computing…</span></li>";
+    $("sentences").classList.remove("hidden");
+    const rows = [];
+    for (let i = 0; i < sents.length; i++) {
+      const without = sents.filter((_, j) => j !== i).join(" ");
+      const pw = await pReal(without);
+      rows.push([p - pw, sents[i]]);
+    }
+    rows.sort((x, y) => Math.abs(y[0]) - Math.abs(x[0]));
+    list.innerHTML = rows.slice(0, 5).map(([d, s]) => `<li><b class="${d >= 0 ? "r" : "f"}">${d >= 0 ? "+" : ""}${(d * 100).toFixed(1)} pts</b><span>${s.replace(/</g, "&lt;")}</span></li>`).join("");
+  }
+}
+
+go.addEventListener("click", analyse);
+inp.addEventListener("keydown", (e) => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter" && ready) analyse(); });
+load();
+</script>
+</body>
+</html>
